@@ -1,6 +1,3 @@
-
-var pageContentEl =document.querySelector("#page-content");
-
 var taskIdCounter = 0;
 
 var formEl = document.querySelector("#task-form");
@@ -8,6 +5,10 @@ var tasksToDoEl = document.querySelector("#tasks-to-do");
 
 var tasksInProgressEl = document.querySelector("#tasks-in-progress");
 var tasksCompletedEl = document.querySelector("#tasks-completed");
+
+var pageContentEl =document.querySelector("#page-content");
+
+var tasks =[];
 
 var taskFormHandler = function(event) {
     event.preventDefault();
@@ -20,6 +21,8 @@ var taskFormHandler = function(event) {
         alert("You need to fill out the task form!");
         return false;
     }
+    
+
     formEl.reset();
     
     var isEdit = formEl.hasAttribute("data-task-id");
@@ -27,8 +30,11 @@ var taskFormHandler = function(event) {
     //package up data as an object
     var taskDataObj = {
         name: taskNameInput,
-        type: taskTypeInput
-    };
+        type: taskTypeInput,
+        status: "to do"
+    }
+
+
     // PUT THIS BELOW `var isEdit = ...` in ` taskFormHandler()`
 
     //has data attribute, do get task id and call function to complete edit process
@@ -56,19 +62,26 @@ var createTaskEl = function(taskDataObj) {
       //create div to hold task info and add to list item
     var taskInfoEl = document.createElement("div");
     taskInfoEl.className = "task-info";
-    taskInfoEl.innerHTML = "<h3 class='task-name'>" + taskDataObj.name + " </h3><span class='task-type'>" +taskDataObj.type + "</span>";
+    taskInfoEl.innerHTML = "<h3 class='task-name'>" + taskDataObj.name + " </h3><span class='task-type'>" + taskDataObj.type + "</span>";
     
     listItemEl.appendChild(taskInfoEl);
+    taskDataObj.id = taskIdCounter;
+    tasks.push(taskDataObj);
 
     var taskActionsEl = createTaskActions(taskIdCounter);
     listItemEl.appendChild(taskActionsEl);
 
-
     //add entire list item to list
      tasksToDoEl.appendChild(listItemEl);
 
+     taskDataObj.id = taskIdCounter;
+     tasks.push(taskDataObj);
+
      //increase task counter for next unique id
      taskIdCounter++;
+
+     console.log(taskDataObj);
+     console.log(taskDataObj.status);
  
 };
 
@@ -145,6 +158,15 @@ var completeEditTask = function(taskName, taskType, taskId) {
     taskSelected.querySelector("h3.task-name").textContent = taskName;
     taskSelected.querySelector("span.task-type").textContent = taskType;
 
+    //loop through tasks array and task object with new content
+    for (var i = 0; i < tasks.length; i++) {
+        if (tasks[i].id === parseInt(taskId)) {
+            tasks[i].name = taskName;
+            tasks[i].type = taskType;
+        }
+    };
+    //debugger;
+
     alert("Task Updated");
 
     formEl.removeAttribute("data-task-id");
@@ -187,6 +209,14 @@ var taskStatusChangeHandler = function(event) {
    else if (statusValue === "completed") {
        tasksCompletedEl.appendChild(taskSelected);
    }
+
+   //update task's in task array
+   for (var i = 0; i< tasks.length; i++) {
+       if (tasks[i].id === parseInt(taskId)) {
+           task[i].status = statusValue;
+       }
+   }
+   //console.log(tasks);
 
 };
 pageContentEl.addEventListener("click", taskButtonHandler);
